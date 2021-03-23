@@ -1,0 +1,73 @@
+cabal-version:      2.4
+name:               nomo
+version:            0.1.0.0
+
+synopsis:           variadic functions
+
+description:        variadic functions without inscrutable error messages
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+license:            MIT
+author:             Nicolas Frisby
+maintainer:         nicolas.frisby@gmail.com
+
+-- copyright:
+-- category:
+extra-source-files:
+                    CHANGELOG.md
+                    README.md
+
+library
+    default-language: Haskell2010
+
+    hs-source-dirs:   src
+                       
+    exposed-modules:
+                      Nomo
+
+                      Nomo.Class
+
+                      Nomo.Acc
+                      Nomo.Acc.App
+                      Nomo.Acc.Bind
+                      Nomo.Acc.Compose
+                      Nomo.Acc.Foldl
+                      Nomo.Acc.Foldr
+                      Nomo.Acc.Foldr1
+                      Nomo.Acc.List
+                      Nomo.Acc.Map
+                      Nomo.Acc.Post
+                      Nomo.Acc.Pre
+                      Nomo.Acc.PrePoly
+                      Nomo.Acc.RApp
+                      Nomo.Acc.RSplat
+                      Nomo.Acc.RSplatr
+                      Nomo.Acc.Splat
+                      Nomo.Acc.Tuple
+                      Nomo.Acc.Vec
+
+                      Nomo.Control.Apply
+                      Nomo.Data.Vec
+
+                      Nomo.Examples
+
+    build-depends:    base
+                    , containers
+
+    other-extensions: AllowAmbiguousTypes
+                      ConstraintKinds
+                      DataKinds
+                      FlexibleContexts
+                      FlexibleInstances
+                      FunctionalDependencies
+                      GADTs
+                      KindSignatures
+                      LambdaCase
+                      MultiParamTypeClasses
+                      ScopedTypeVariables
+                      TypeApplications
+                      TypeFamilies
+                      TypeOperators
+                      UndecidableInstances
