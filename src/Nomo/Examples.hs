@@ -6,6 +6,8 @@
 
 module Nomo.Examples (main) where
 
+import           Data.List (intercalate)
+
 import           Nomo (nomo)
 import qualified Nomo
 import qualified Nomo.Acc

@@ -55,6 +55,8 @@ library
 
                       Nomo.Examples
 
+                      Nomo.Type
+
     build-depends:    base
                     , containers
                     , sop-core

@@ -16,6 +16,7 @@ import           Data.Kind (Type)
 import qualified Data.SOP.NP as NP
 
 import           Nomo.Class
+import           Nomo.Type
 
 newtype NPr (f :: k -> Type) xs = NPr (NP.NP f xs)
 

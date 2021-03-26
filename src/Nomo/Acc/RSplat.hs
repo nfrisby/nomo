@@ -9,6 +9,7 @@ module Nomo.Acc.RSplat (
   ) where
 
 import           Nomo.Class
+import           Nomo.Type (Context)
 
 -- splat:
 -- ((pure assoc <*> pure show) <*> pure (*2)) <*> pure 3
@@ -26,17 +27,17 @@ rsplat :: Applicative f => f a -> RSplat f r a r
 rsplat = RSplat id
 
 instance
-  (
-    x ~ f r
-  ,
-    a ~ b
-  )
+  Context
+  (x ~ f r)
+  (a ~ b)
   =>
   Stop (RSplat f b a r) x
   where
     stop (RSplat acc a) = acc a
 
 instance
+  -- cannot use Context here because it confuses GHC regarding the
+  -- fundep check
   (
     x ~ f a2
   ,
