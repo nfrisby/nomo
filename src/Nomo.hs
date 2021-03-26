@@ -1,5 +1,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -10,8 +12,11 @@ module Nomo (module Nomo) where   -- TODO explicit list
 import qualified Control.Applicative as App
 import qualified Control.Arrow as Arrow
 import qualified Control.Category as Cat
+import           Data.Kind (Type)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as Map
+import qualified Data.SOP.BasicFunctors as SOP
+import qualified Data.SOP.NP as SOP
 import qualified Data.Sequence as Seq
 import qualified Data.Set as Set
 import qualified GHC.Arr as Arr
@@ -476,3 +481,42 @@ rsplatr ::
   f a ->
   funs
 rsplatr fa = Class.steps $ Acc.rsplatr fa
+
+--------------------------------------------------------------------------------
+-- @sop-core@ types
+
+-- | Interpret juxtapositions as 'SOP.:*', with a sentinel 'SOP.Nil'
+np ::
+  forall k (f :: k -> Type) xs funs.
+    Class.Steps (Acc.NP f xs xs) funs
+  =>
+  funs
+np = Class.steps $ Acc.np @k @f @xs
+
+-- | Interpret juxtapositions as a left-associative operator equal to
+-- @'flip' '(SOP.:*)'@, with an initial 'SOP.Nil'
+npr ::
+  forall k (f :: k -> Type) funs.
+    Class.Steps (Acc.NPr f '[]) funs
+  =>
+  funs
+npr = Class.steps $ Acc.npr @k @f
+
+-- | Interpret juxtapositions as 'SOP.:*', with a sentinel 'SOP.Nil'
+-- and pre-mapping 'SOP.I'
+inp ::
+  forall xs funs.
+    Class.Steps (Acc.PrePoly A.SopI (Acc.NP SOP.I xs xs)) funs
+  =>
+  funs
+inp = Class.steps $ Acc.prePoly A.SopI $ Acc.np @Type @SOP.I @xs
+
+-- | Interpret juxtapositions as 'SOP.:*'a left-associative operator
+-- equal to @'flip' '(SOP.:*)'@, with an initial 'SOP.Nil', and
+-- pre-mapping 'SOP.I'
+inpr ::
+  forall funs.
+    Class.Steps (Acc.PrePoly A.SopI (Acc.NPr SOP.I '[])) funs
+  =>
+  funs
+inpr = Class.steps $ Acc.prePoly A.SopI $ Acc.npr @Type @SOP.I

@@ -10,6 +10,7 @@ module Nomo.Control.Apply (
     Compose (..),
     Dual (..),
     Id (..),
+    SopI (..),
     ToArrowA (..),
     ToArrowM (..),
     ToDual (..),
@@ -19,6 +20,7 @@ module Nomo.Control.Apply (
 import qualified Control.Arrow as Arrow
 import qualified Control.Category as Cat
 import           Data.Kind (Type)
+import qualified Data.SOP as SOP
 
 -----
 
@@ -69,6 +71,19 @@ instance
   Apply Id dom cod
   where
     apply _ = id
+
+-----
+
+data SopI = SopI
+
+instance
+  (
+    cod ~ SOP.I dom
+  )
+  =>
+  Apply SopI dom cod
+  where
+    apply _ = SOP.I
 
 -----
 

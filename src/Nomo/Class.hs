@@ -107,7 +107,7 @@ instance {-# INCOHERENT #-}
                 :$$: Text ""
                 :$$: Text "    as a function of this type"
                 :$$: Text ""
-                :$$: Text "        " :<>: ShowType otherwise
+                :$$: Text "        " :<>: ShowType other
                 :$$: Text ""
                 :$$: Text "    Either fix the error locally, or if you're defining your own variadic"
                 :$$: Text "    function, check if you need to annotate polymorphic values (eg the empty"
@@ -117,6 +117,6 @@ instance {-# INCOHERENT #-}
                 :$$: Text ""
               )
   =>
-  Steps_ acc otherwise
+  Steps_ acc other
   where
     steps = error "unreachable code"

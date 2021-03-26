@@ -122,6 +122,12 @@ main = do
   print $ sum $ nomo $ Nomo.Class.steps (Nomo.Acc.pre (`mod` 4) $ Nomo.Acc.list) 11 20 33
   print $ sum $                                   map (`mod` 4) $       [11, 20, 33]
 
+  putStrLn "\n-- Data.SOP.NP"
+  print $ nomo $ Nomo.np (Just True) (Just ()) (pure 3)
+  print $ nomo $ Nomo.npr (pure 3) (Just ()) (Just True)
+  print $ nomo $ Nomo.inp True () 3
+  print $ nomo $ Nomo.inpr 3 () True
+
 -- Should give a very good error message
 -- bad () = Nomo.tuple 1 "OK" True
 

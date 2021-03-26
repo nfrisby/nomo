@@ -38,6 +38,8 @@ library
                       Nomo.Acc.Foldr1
                       Nomo.Acc.List
                       Nomo.Acc.Map
+                      Nomo.Acc.NP
+                      Nomo.Acc.NPr
                       Nomo.Acc.Post
                       Nomo.Acc.Pre
                       Nomo.Acc.PrePoly
@@ -55,6 +57,7 @@ library
 
     build-depends:    base
                     , containers
+                    , sop-core
 
     other-extensions: AllowAmbiguousTypes
                       ConstraintKinds

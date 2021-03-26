@@ -8,6 +8,8 @@ import Nomo.Acc.Foldr                                                       as X
 import Nomo.Acc.Foldr1                                                      as X
 import Nomo.Acc.List                                                        as X
 import Nomo.Acc.Map                                                         as X
+import Nomo.Acc.NP                                                          as X
+import Nomo.Acc.NPr                                                         as X
 import Nomo.Acc.Post                                                        as X
 import Nomo.Acc.Pre                                                         as X
 import Nomo.Acc.PrePoly                                                     as X
