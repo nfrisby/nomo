@@ -7,7 +7,11 @@
 
 {-# OPTIONS_GHC -Wno-simplifiable-class-constraints #-}
 
-module Nomo (module Nomo) where   -- TODO explicit list
+module Nomo (
+  module Nomo,   -- TODO explicit list
+  Class.conomo,
+  Class.nomo,
+  ) where
 
 import qualified Control.Applicative as App
 import qualified Control.Arrow as Arrow
@@ -26,9 +30,6 @@ import qualified Nomo.Data.Vec as V
 import qualified Nomo.Acc as Acc
 import qualified Nomo.Class as Class
 import           Nomo.Type (Context)
-
-nomo :: Class.Stopped a -> a
-nomo = Class.getStopped
 
 --------------------------------------------------------------------------------
 -- TODO
@@ -249,16 +250,6 @@ vec ::
 vec = Class.steps $ Acc.vec @n @a
 
 -- | Interpet juxtapositions as 'Nomo.Data.Vec.VCons', with a sentinel
--- 'Nomo.Data.Vec.VNil'
-vecNomo ::
-  forall a n funs
-  .
-  (Class.Steps (Acc.VecVec n n a) funs)
-  =>
-  funs
-vecNomo = Class.steps $ Acc.vecVec @n @a
-
--- | Interpet juxtapositions as 'Nomo.Data.Vec.VCons', with a sentinel
 -- 'Nomo.Data.Vec.VNil', pre-mapping the given function
 vecMap ::
   forall a b n funs
@@ -330,6 +321,15 @@ tuple ::
   b ->
   funs
 tuple a b = Class.steps $ Acc.tuple (a,b)
+
+tupleCase ::
+  forall t r fun res
+  .
+  (Class.Costeps (Acc.TupleCase t r) fun res)
+  =>
+  fun ->
+  res
+tupleCase = Class.costeps $ Acc.tupleCase @t @r
 
 --------------------------------------------------------------------------------
 -- Pure functions

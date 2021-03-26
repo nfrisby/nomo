@@ -2,13 +2,13 @@
 
 -- Comment to see values.
 -- Uncomment to see inferred types.
--- {-# OPTIONS_GHC -w #-}
+{-# OPTIONS_GHC -w #-}
 
 module Nomo.Examples (main) where
 
 import           Data.List (intercalate)
 
-import           Nomo (nomo)
+import           Nomo (conomo,nomo)
 import qualified Nomo
 import qualified Nomo.Acc
 import qualified Nomo.Class
@@ -49,6 +49,8 @@ tuple3 () = nomo $ Nomo.tuple
   56 57 58 59 60
   61 62   -- GHC stops at 62-tuples, so @nomo@ does too
 
+tupleCase1 () = Nomo.tupleCase $ \a b c -> conomo $ nomo $ Nomo.fold (show a) (show b) (show c)
+
 vec1 () = nomo $ Nomo.vec 10 20 30
 vec2 () = nomo $ Nomo.vec
   (nomo $ Nomo.vec 1 5)
@@ -56,11 +58,9 @@ vec2 () = nomo $ Nomo.vec
   (nomo $ Nomo.vec 3 7)
   (nomo $ Nomo.vecMap (+3) 1 5)
 
-vec3 () = nomo $ Nomo.vec
-  (nomo $ Nomo.vec 1 5)
-  (nomo $ Nomo.vec 2 6)
-  (nomo $ Nomo.vec 3 7)
-  (nomo $ Nomo.vecMap (+3) 1 5)
+-- Why doesn't this work? Hypothesis: the INCOHERENT discharges on
+-- Steps tau, and then later tau is unified to the full arrow type.
+-- vec4 () = nomo $ Nomo.vecMap nomo (Nomo.vec '1' '5')
 
 main :: IO ()
 main = do
@@ -104,6 +104,7 @@ main = do
   putStrLn "\n-- Tuples"
   print $ tuple1 ()
   print $ tuple2 ()
+  print $ tupleCase1 () $ tuple2 ()
 
   putStrLn "\n-- Vectors"
   print $ vec1 ()
