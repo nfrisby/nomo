@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -39,7 +40,16 @@ module Nomo.Class (
     nomo,
   ) where
 
+import           Data.Void (Void)
+import           GHC.Exts (Proxy#, proxy#)
 import           GHC.TypeLits
+
+--------------------------------------------------------------------------------
+-- Without this silly layer of indirection, GHC raises TypeError failures while
+-- compiling this module
+
+type family TypeError_ (err :: ErrorMessage) :: Void where
+  TypeError_ err = TypeError err
 
 --------------------------------------------------------------------------------
 -- We use this newtype to emphasize a fundamental transition from
@@ -78,71 +88,69 @@ class
 -- Define the 'steps' function. This type class is closed; there can
 -- be no more instances. Thus we don't export the class itself.
 
-type Steps = Steps_
+type Steps acc fun = Steps_ (TypeError_ (StepsErr acc fun)) acc fun
 
 -- Not exported.
 class
-  Steps_ acc fun
+  Steps_ err acc fun
   where
-    steps :: acc -> fun
+    steps_ :: Proxy# (err :: Void) -> acc -> fun
 
 instance
     Stop acc a
   =>
-  Steps_ acc (Stopped a)
+  Steps_ err acc (Stopped a)
   where
-    steps = Stopped . stop
+    steps_ _ = Stopped . stop
 
 instance
   (
-    Steps_ acc' b
+    Steps_ err acc' b
   ,
     Step acc a acc'
   )
   =>
-  Steps_ acc (a -> b)
+  Steps_ err acc (a -> b)
   where
-    steps acc a = steps (step acc a :: acc')
+    steps_ err acc a = steps_ err (step acc a :: acc')
 
-instance {-# INCOHERENT #-}
-    TypeError (      Text "Did you forget to apply `nomo'?"
-                :$$: Text ""
-                :$$: Text "    An application of a variadic function must be immediately passed to `nomo',"
-                :$$: Text "    as in the following examples."
-                :$$: Text "        `nomo (foo a b c d e)'"
-                :$$: Text "        `nomo (foo u v)'"
-                :$$: Text "        `nomo $ foo x y z'"
-                :$$: Text "    If not all arguments are present yet, eta-expand in order to bind the"
-                :$$: Text "    deferred arguments in a lambda, as in the following example."
-                :$$: Text "        `\\p q -> nomo (foo a p b q c)'"
-                :$$: Text ""
-                :$$: Text "Lower-level details:"
-                :$$: Text "    This error arose because the code tried to interpret a stepping"
-                :$$: Text "    accumulator of type"
-                :$$: Text ""
-                :$$: Text "        " :<>: ShowType acc
-                :$$: Text ""
-                :$$: Text "    as a function of this type"
-                :$$: Text ""
-                :$$: Text "        " :<>: ShowType other
-                :$$: Text ""
-                :$$: Text "    Either fix the error locally, or if you're defining your own variadic"
-                :$$: Text "    function, check if you need to annotate polymorphic values (eg the empty"
-                :$$: Text "    list) in your definition with type variables and that your signatures"
-                :$$: Text "    provides *exactly* the `" :<>: ShowType Steps :<>: Text "' constraint that your"
-                :$$: Text "    `Nomo.Class.steps` application needs."
-                :$$: Text ""
-              )
-  =>
-  Steps_ acc other
-  where
-    steps = error "unreachable code"
+type StepsErr acc other =
+         Text "Did you forget to apply `nomo'?"
+    :$$: Text ""
+    :$$: Text "    An application of a variadic function must be immediately passed to `nomo',"
+    :$$: Text "    as in the following examples."
+    :$$: Text "        `nomo (foo a b c d e)'"
+    :$$: Text "        `nomo (foo u v)'"
+    :$$: Text "        `nomo $ foo x y z'"
+    :$$: Text "    If not all arguments are present yet, eta-expand in order to bind the"
+    :$$: Text "    deferred arguments in a lambda, as in the following example."
+    :$$: Text "        `\\p q -> nomo (foo a p b q c)'"
+    :$$: Text ""
+    :$$: Text "Lower-level details:"
+    :$$: Text "    This error arose because the code tried to interpret a stepping"
+    :$$: Text "    accumulator of type"
+    :$$: Text ""
+    :$$: Text "        " :<>: ShowType acc
+    :$$: Text ""
+    :$$: Text "    as a function of this type"
+    :$$: Text ""
+    :$$: Text "        " :<>: ShowType other
+    :$$: Text ""
+    :$$: Text "    Either fix the error locally, or if you're defining your own variadic"
+    :$$: Text "    function, check if you need to annotate polymorphic values (eg the empty"
+    :$$: Text "    list) in your definition with type variables and that your signatures"
+    :$$: Text "    provides *exactly* the `Nomo.Class.Steps` constraint that your"
+    :$$: Text "    application of `Nomo.Class.steps` requires."
+    :$$: Text ""
+
+steps :: forall acc fun. Steps_ (TypeError_ (StepsErr acc fun)) acc fun => acc -> fun
+steps = steps_ (proxy# :: Proxy# (TypeError_ (StepsErr acc fun)))
 
 --------------------------------------------------------------------------------
 -- Define the 'costeps' function. This type class is closed; there can
 -- be no more instances. Thus we don't export the class itself.
 
-type Costeps = Costeps_
+type Costeps acc res = Costeps_ (TypeError_ (CostepsErr acc res)) acc res
 
 class
   Costep acc res a acc' res'
@@ -157,59 +165,57 @@ class
 
 -- Not exported.
 class
-  Costeps_ acc fun res
+  Costeps_ err acc fun res
   where
-    costeps :: acc -> fun -> res
+    costeps_ :: Proxy# (err :: Void) -> acc -> fun -> res
 
 instance
     Costop acc a res
   =>
-  Costeps_ acc (Stopped a) res
+  Costeps_ err acc (Stopped a) res
   where
-    costeps acc f = costop acc (getStopped f)
+    costeps_ _err acc f = costop acc (getStopped f)
 
 instance
   (
-    Costeps_ acc' b res'
+    Costeps_ err acc' b res'
   ,
     Costep acc res a acc' res'
   )
   =>
-  Costeps_ acc (a -> b) res
+  Costeps_ err acc (a -> b) res
   where
-    costeps acc f =
-      costep acc $ \acc' a -> costeps acc' (f a)
+    costeps_ err acc f =
+      costep acc $ \acc' a -> costeps_ err acc' (f a)
 
-instance {-# INCOHERENT #-}
-    TypeError (      Text "Did you forget to apply `conomo'?"
-                :$$: Text ""
-                :$$: Text "    The argument to a variadic cofunction must immediately pass its result to `conomo',"
-                :$$: Text "    as in the following examples."
-                :$$: Text "        `foo $ \\a b c d e -> conomo $ ...'"
-                :$$: Text "        `foo (\\u v -> conomo $ ...)'"
-                :$$: Text "        `foo $ \\x y z -> conomo (...)'"
-                :$$: Text "    If not all arguments are present yet, eta-expand in order to bind the"
-                :$$: Text "    deferred arguments in a lambda, as in the following example."
-                :$$: Text "        `foo $ \\p q -> conomo $ ... p q)'"
-                :$$: Text ""
-                :$$: Text "Lower-level details:"
-                :$$: Text "    This error arose because the code tried to interpret a costepping"
-                :$$: Text "    accumulator of type"
-                :$$: Text ""
-                :$$: Text "        " :<>: ShowType acc
-                :$$: Text ""
-                :$$: Text "    as a function of this type"
-                :$$: Text ""
-                :$$: Text "        " :<>: ShowType other
-                :$$: Text ""
-                :$$: Text "    Either fix the error locally, or if you're defining your own variadic"
-                :$$: Text "    cofunction, check if you need to annotate polymorphic values (eg the empty"
-                :$$: Text "    list) in your definition with type variables and that your signatures"
-                :$$: Text "    provides *exactly* the `" :<>: ShowType Costeps :<>: Text "' constraint that your"
-                :$$: Text "    `Nomo.Class.costeps` application needs."
-                :$$: Text ""
-              )
-  =>
-  Costeps_ acc other res
-  where
-    costeps = error "unreachable code"
+type CostepsErr acc other =
+         Text "Did you forget to apply `conomo'?"
+    :$$: Text ""
+    :$$: Text "    The argument to a variadic cofunction must immediately pass its result to `conomo',"
+    :$$: Text "    as in the following examples."
+    :$$: Text "        `foo $ \\a b c d e -> conomo $ ...'"
+    :$$: Text "        `foo (\\u v -> conomo $ ...)'"
+    :$$: Text "        `foo $ \\x y z -> conomo (...)'"
+    :$$: Text "    If not all arguments are present yet, eta-expand in order to bind the"
+    :$$: Text "    deferred arguments in a lambda, as in the following example."
+    :$$: Text "        `foo $ \\p q -> conomo $ ... p q)'"
+    :$$: Text ""
+    :$$: Text "Lower-level details:"
+    :$$: Text "    This error arose because the code tried to interpret a costepping"
+    :$$: Text "    accumulator of type"
+    :$$: Text ""
+    :$$: Text "        " :<>: ShowType acc
+    :$$: Text ""
+    :$$: Text "    as a function of this type"
+    :$$: Text ""
+    :$$: Text "        " :<>: ShowType other
+    :$$: Text ""
+    :$$: Text "    Either fix the error locally, or if you're defining your own variadic"
+    :$$: Text "    cofunction, check if you need to annotate polymorphic values (eg the empty"
+    :$$: Text "    list) in your definition with type variables and that your signatures"
+    :$$: Text "    provides *exactly* the `Nomo.Class.Costeps` constraint that your"
+    :$$: Text "    application of `Nomo.Class.costeps` requires."
+    :$$: Text ""
+
+costeps :: forall acc fun res. Costeps_ (TypeError_ (CostepsErr acc fun)) acc fun res => acc -> fun -> res
+costeps = costeps_ (proxy# :: Proxy# (TypeError_ (CostepsErr acc fun)))

@@ -176,11 +176,13 @@ list = Nomo.foldr (:) ([] @a)
 
 -- | As 'Nomo.list', requiring at least one element
 list1 ::
-  (Class.Steps (Acc.Foldr a [a]) funs)
+  forall a funs
+  .
+  (Class.Steps (Acc.Foldr a [a]) (a -> funs))
   =>
   a ->
   funs
-list1 = Nomo.list
+list1 = Nomo.list @a
 
 -- | Interpret juxtapositions as 'NE.cons', pre-mapping the final
 -- element with @('NE.:|' '[]')@
@@ -204,11 +206,13 @@ zipList = Class.steps $ Acc.post (App.ZipList @a) $ Acc.list @a
 
 -- | As 'Nomo.list1', post-mapping 'App.ZipList'
 zipList1 ::
-  (Class.Steps (Acc.Post [a] (App.ZipList a) (Acc.Foldr a [a])) funs)
+  forall a funs
+  .
+  (Class.Steps (Acc.Post [a] (App.ZipList a) (Acc.Foldr a [a])) (a -> funs))
   =>
   a ->
   funs
-zipList1 = Nomo.zipList
+zipList1 = Nomo.zipList @a
 
 -- | As 'Nomo.list', post-mapping @'Arr.listArray' bounds@
 listArray ::
@@ -232,12 +236,12 @@ listArray1 ::
   .
   Context
   (Arr.Ix i)
-  (Class.Steps (Acc.Post [e] (Arr.Array i e) (Acc.Foldr e [e])) funs)
+  (Class.Steps (Acc.Post [e] (Arr.Array i e) (Acc.Foldr e [e])) (e -> funs))
   =>
   (i,i) ->
   e ->
   funs
-listArray1 = Nomo.listArray
+listArray1 = Nomo.listArray @i @e
 
 -- | Interpet juxtapositions as 'Nomo.Data.Vec.VCons', with a sentinel
 -- 'Nomo.Data.Vec.VNil'

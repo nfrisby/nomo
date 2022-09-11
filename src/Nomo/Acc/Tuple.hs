@@ -12,7 +12,7 @@ module Nomo.Acc.Tuple (
     tupleCase,
   ) where
 
-import           Data.Tuple.OneTuple
+import           Data.Tuple.Solo
 
 import           Nomo.Class
 
@@ -81,8 +81,8 @@ class
   where
     tuplePop :: outer -> (a,inner)
 
-instance TuplePop (OneTuple a1) a1 () where tuplePop (OneTuple a1) = (,) a1 ()
-instance TuplePop (a1,a2) a1 (OneTuple a2) where tuplePop (a1,a2) = (,) a1 (OneTuple a2)
+instance TuplePop (Solo a1) a1 () where tuplePop (Solo a1) = (,) a1 ()
+instance TuplePop (a1,a2) a1 (Solo a2) where tuplePop (a1,a2) = (,) a1 (Solo a2)
 instance TuplePop (a1,a2,a3) a1 (a2,a3) where tuplePop (a1,a2,a3) = (,) a1 (a2,a3)
 instance TuplePop (a1,a2,a3,a4) a1 (a2,a3,a4) where tuplePop (a1,a2,a3,a4) = (,) a1 (a2,a3,a4)
 instance TuplePop (a1,a2,a3,a4,a5) a1 (a2,a3,a4,a5) where tuplePop (a1,a2,a3,a4,a5) = (,) a1 (a2,a3,a4,a5)
@@ -151,8 +151,8 @@ class
   where
     tuplePush :: old -> a -> new
 
-instance TuplePush () x (OneTuple x) where tuplePush () x = (OneTuple x)
-instance TuplePush (OneTuple a1) x (a1,x) where tuplePush (OneTuple a1) x = (a1,x)
+instance TuplePush () x (Solo x) where tuplePush () x = (Solo x)
+instance TuplePush (Solo a1) x (a1,x) where tuplePush (Solo a1) x = (a1,x)
 instance TuplePush (a1,a2) x (a1,a2,x) where tuplePush (a1,a2) x = (a1,a2,x)
 instance TuplePush (a1,a2,a3) x (a1,a2,a3,x) where tuplePush (a1,a2,a3) x = (a1,a2,a3,x)
 instance TuplePush (a1,a2,a3,a4) x (a1,a2,a3,a4,x) where tuplePush (a1,a2,a3,a4) x = (a1,a2,a3,a4,x)

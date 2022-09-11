@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 {-# OPTIONS_GHC -Wmissing-signatures #-}
 
 -- Comment to see values.
@@ -58,9 +60,11 @@ vec2 () = nomo $ Nomo.vec
   (nomo $ Nomo.vec 3 7)
   (nomo $ Nomo.vecMap (+3) 1 5)
 
--- Why doesn't this work? Hypothesis: the INCOHERENT discharges on
--- Steps tau, and then later tau is unified to the full arrow type.
--- vec4 () = nomo $ Nomo.vecMap nomo (Nomo.vec '1' '5')
+vec4 () = nomo $ Nomo.vecMap nomo
+  (Nomo.vec False False)
+  (Nomo.vec False True )
+  (Nomo.vec True  False)
+  (Nomo.vec True  True )
 
 main :: IO ()
 main = do
@@ -109,6 +113,7 @@ main = do
   putStrLn "\n-- Vectors"
   print $ vec1 ()
   print $ vec2 ()
+  print $ vec4 ()
 
   putStrLn "\n-- Containers"
   print $ nomo $ Nomo.set 1 3 2 3
