@@ -66,6 +66,65 @@ vec4 () = nomo $ Nomo.vecMap nomo
   (Nomo.vec True  False)
   (Nomo.vec True  True )
 
+{- Running the following printed:
+
+-- Lists
+[1,2,3]
+[1,2,3,4]
+
+-- Functions
+11.5
+11.5
+["8","14","16","22","24","30"]
+["8","14","16","22","24","30"]
+["8","14","16","22","24","30"]
+["123","456","321","654"]
+["123","456","321","654"]
+["123","456","321","654"]
+["123","456","321","654"]
+["123","456","321","654"]
+["123","456","321","654"]
+"11.5"
+
+-- Order of Applicative effects
+abc6
+abc6
+abc6
+abc6
+
+-- Tuples
+(1,"OK")
+(1,"OK",True)
+"1\"OK\"True"
+
+-- Vectors
+[10,20,30]
+[[1,5],[2,6],[3,7],[4,8]]
+[[False,False],[False,True],[True,False],[True,True]]
+
+-- Containers
+fromList [1,2,3]
+fromList [1,2,3]
+fromList [(1,"magic"),(2,"like")]
+fromList [(1,"normal"),(2,"more")]
+
+-- NonEmpty
+() :| []
+1 :| [2,3,4,5]
+
+-- Sums
+0
+4
+4
+
+-- Data.SOP.NP
+Just True :* Just () :* Just 3 :* Nil
+Just True :* Just () :* Just 3 :* Nil
+I True :* I () :* I 3 :* Nil
+I True :* I () :* I 3 :* Nil
+
+-}
+
 main :: IO ()
 main = do
   putStrLn "\n-- Lists"
